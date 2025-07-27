@@ -3,8 +3,8 @@ local player = game.Players.LocalPlayer
 local speedEnabled = false
 local jumpEnabled = false
 
-local desiredSpeed = 400
-local desiredJump = 240
+local desiredSpeed = 350
+local desiredJump = 360
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "SpeedJumpGui"
