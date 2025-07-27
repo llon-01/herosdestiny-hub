@@ -1,8 +1,5 @@
--- A Hero's Destiny GUI Hack
 local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
 
--- Настройки
 local speedEnabled = false
 local jumpEnabled = false
 local antiAfkEnabled = false
@@ -14,7 +11,6 @@ local desiredJump = 120
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "SimpleGui"
 
--- Кнопки
 local function createButton(text, posY, callback)
     local btn = Instance.new("TextButton", gui)
     btn.Size = UDim2.new(0, 200, 0, 40)
@@ -25,28 +21,28 @@ local function createButton(text, posY, callback)
     btn.TextSize = 20
     btn.Text = text
     btn.MouseButton1Click:Connect(callback)
+    return btn
 end
 
--- SpeedHack toggle
+-- Кнопки
 createButton("Speedhack On/Off", 50, function()
     speedEnabled = not speedEnabled
 end)
 
--- JumpHack toggle
 createButton("JumpHack On/Off", 100, function()
     jumpEnabled = not jumpEnabled
 end)
 
--- Anti-AFK toggle
 createButton("Enable Anti-AFK", 150, function()
     antiAfkEnabled = not antiAfkEnabled
 end)
 
--- Применение настроек
+-- Постоянная фиксация значений
 spawn(function()
     while true do
         wait(0.05)
-        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        local char = player.Character
+        local humanoid = char and char:FindFirstChildOfClass("Humanoid")
         if humanoid then
             humanoid.WalkSpeed = speedEnabled and desiredSpeed or 16
             humanoid.JumpPower = jumpEnabled and desiredJump or 50
