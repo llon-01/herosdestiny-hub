@@ -4,8 +4,8 @@ local speedEnabled = false
 local jumpEnabled = false
 local antiAfkEnabled = false
 
-local desiredSpeed = 100
-local desiredJump = 120
+local desiredSpeed = 200
+local desiredJump = 220
 
 -- GUI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
