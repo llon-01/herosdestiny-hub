@@ -1,17 +1,18 @@
+-- A Hero's Destiny GUI Hub (обновлённый)
+
 local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local human = character:WaitForChild("Humanoid")
 
--- Обновляем human при смене персонажа
-player.CharacterAdded:Connect(function(char)
-    character = char
-    human = char:WaitForChild("Humanoid")
-end)
+-- Ждём, когда появится персонаж
+local function getHumanoid()
+    local char = player.Character or player.CharacterAdded:Wait()
+    return char:WaitForChild("Humanoid")
+end
 
--- GUI как у тебя
+-- UI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "SimpleGui"
 
+-- Функция для создания кнопок
 local function createButton(text, posY, callback)
     local btn = Instance.new("TextButton", gui)
     btn.Size = UDim2.new(0, 200, 0, 40)
@@ -22,27 +23,36 @@ local function createButton(text, posY, callback)
     btn.Font = Enum.Font.SourceSansBold
     btn.TextSize = 20
     btn.MouseButton1Click:Connect(callback)
+    return btn
 end
 
--- Speedhack toggle
 local speedEnabled = false
+local jumpEnabled = false
+
+local function applySettings()
+    local humanoid = getHumanoid()
+    if humanoid then
+        humanoid.WalkSpeed = speedEnabled and 100 or 16
+        humanoid.JumpPower = jumpEnabled and 120 or 50
+    end
+end
+
+-- Кнопка SpeedHack
 createButton("Speedhack On/Off", 100, function()
     speedEnabled = not speedEnabled
-    if human then
-        human.WalkSpeed = speedEnabled and 100 or 16
-    end
+    applySettings()
 end)
 
--- Jumphack toggle
-local jumpEnabled = false
+-- Кнопка JumpHack
 createButton("JumpHack On/Off", 150, function()
     jumpEnabled = not jumpEnabled
-    if human then
-        human.JumpPower = jumpEnabled and 120 or 50
-    end
+    applySettings()
 end)
 
--- Anti-AFK кнопка (пример, просто выводит сообщение)
-createButton("Enable Anti-AFK", 200, function()
-    print("Anti-AFK включен (здесь надо добавить код)")
+-- Автоматическое применение при респавне
+player.CharacterAdded:Connect(function()
+    wait(1) -- подождать загрузку персонажа
+    applySettings()
 end)
+
+print("Скрипт запущен и готов к работе")
