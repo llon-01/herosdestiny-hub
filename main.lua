@@ -4,7 +4,7 @@ local speedEnabled = false
 local jumpEnabled = false
 
 local desiredSpeed = 350
-local desiredJump = 360
+local desiredJump = 240
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "SpeedJumpGui"
@@ -38,6 +38,8 @@ createButton("Toggle Speedhack", 50, function()
                         humanoid.WalkSpeed = 16
                     end
                 end)
+            else
+                humanoid.WalkSpeed = 16
             end
         end
     end
@@ -46,4 +48,26 @@ end)
 createButton("Toggle Jumphack", 100, function()
     jumpEnabled = not jumpEnabled
     local char = player.Character
-    if cha
+    if char then
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.JumpPower = jumpEnabled and desiredJump or 50
+        end
+    end
+end)
+
+player.CharacterAdded:Connect(function(char)
+    local humanoid = char:WaitForChild("Humanoid")
+    if speedEnabled then
+        spawn(function()
+            while speedEnabled and humanoid and humanoid.Parent do
+                humanoid.WalkSpeed = desiredSpeed
+                wait(0.01)
+            end
+            if humanoid and humanoid.Parent then
+                humanoid.WalkSpeed = 16
+            end
+        end)
+    end
+    humanoid.JumpPower = jumpEnabled and desiredJump or 50
+end)
