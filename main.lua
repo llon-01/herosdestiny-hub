@@ -1,13 +1,17 @@
--- A Hero's Destiny GUI Hub (простой)
 local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local human = char:WaitForChild("Humanoid")
+local character = player.Character or player.CharacterAdded:Wait()
+local human = character:WaitForChild("Humanoid")
 
--- UI
+-- Обновляем human при смене персонажа
+player.CharacterAdded:Connect(function(char)
+    character = char
+    human = char:WaitForChild("Humanoid")
+end)
+
+-- GUI как у тебя
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "SimpleGui"
 
--- Функция для создания кнопок
 local function createButton(text, posY, callback)
     local btn = Instance.new("TextButton", gui)
     btn.Size = UDim2.new(0, 200, 0, 40)
@@ -20,30 +24,25 @@ local function createButton(text, posY, callback)
     btn.MouseButton1Click:Connect(callback)
 end
 
--- SpeedHack toggle
+-- Speedhack toggle
 local speedEnabled = false
 createButton("Speedhack On/Off", 100, function()
     speedEnabled = not speedEnabled
-    human.WalkSpeed = speedEnabled and 100 or 16
+    if human then
+        human.WalkSpeed = speedEnabled and 100 or 16
+    end
 end)
 
--- JumpHack toggle
+-- Jumphack toggle
 local jumpEnabled = false
 createButton("JumpHack On/Off", 150, function()
     jumpEnabled = not jumpEnabled
-    human.JumpPower = jumpEnabled and 120 or 50
+    if human then
+        human.JumpPower = jumpEnabled and 120 or 50
+    end
 end)
 
--- Anti-AFK
+-- Anti-AFK кнопка (пример, просто выводит сообщение)
 createButton("Enable Anti-AFK", 200, function()
-    local vu = game:service("VirtualUser")
-    game:service("Players").LocalPlayer.Idled:connect(function()
-        vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-        wait(1)
-        vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-    end)
-    print("Anti-AFK активирован")
+    print("Anti-AFK включен (здесь надо добавить код)")
 end)
-
-print("Simple Hero's Destiny GUI загружен.")
-
