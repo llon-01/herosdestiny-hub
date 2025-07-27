@@ -19,7 +19,6 @@ local function createButton(text, posY, callback)
     return btn
 end
 
--- Функция для применения настроек, будет вызываться постоянно
 local function applySettings()
     local character = player.Character
     if not character then return end
@@ -30,7 +29,6 @@ local function applySettings()
     humanoid.JumpPower = jumpEnabled and 120 or 50
 end
 
--- Цикл для постоянного поддержания настроек
 spawn(function()
     while true do
         applySettings()
@@ -38,7 +36,7 @@ spawn(function()
         if humanoid then
             print("Speed:", humanoid.WalkSpeed, "Jump:", humanoid.JumpPower)
         end
-        wait(0.1) -- увеличиваем частоту обновления
+        wait(0.1)
     end
 end)
 
@@ -50,7 +48,6 @@ createButton("JumpHack On/Off", 150, function()
     jumpEnabled = not jumpEnabled
 end)
 
--- Обновляем настройки при появлении персонажа
 player.CharacterAdded:Connect(function()
     wait(1)
     applySettings()
