@@ -34,7 +34,11 @@ end
 spawn(function()
     while true do
         applySettings()
-        wait(0.5)  -- обновляем каждые полсекунды
+        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            print("Speed:", humanoid.WalkSpeed, "Jump:", humanoid.JumpPower)
+        end
+        wait(0.1) -- увеличиваем частоту обновления
     end
 end)
 
