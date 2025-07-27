@@ -4,7 +4,7 @@ local speedEnabled = false
 local jumpEnabled = false
 local antiAfkEnabled = false
 
-local desiredSpeed = 500
+local desiredSpeed = 250
 local desiredJump = 240
 
 -- GUI
