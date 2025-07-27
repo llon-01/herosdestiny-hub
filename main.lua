@@ -1,18 +1,11 @@
--- A Hero's Destiny GUI Hub (обновлённый)
-
 local player = game.Players.LocalPlayer
 
--- Ждём, когда появится персонаж
-local function getHumanoid()
-    local char = player.Character or player.CharacterAdded:Wait()
-    return char:WaitForChild("Humanoid")
-end
+local speedEnabled = false
+local jumpEnabled = false
 
--- UI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "SimpleGui"
 
--- Функция для создания кнопок
 local function createButton(text, posY, callback)
     local btn = Instance.new("TextButton", gui)
     btn.Size = UDim2.new(0, 200, 0, 40)
@@ -26,33 +19,37 @@ local function createButton(text, posY, callback)
     return btn
 end
 
-local speedEnabled = false
-local jumpEnabled = false
-
+-- Функция для применения настроек, будет вызываться постоянно
 local function applySettings()
-    local humanoid = getHumanoid()
-    if humanoid then
-        humanoid.WalkSpeed = speedEnabled and 100 or 16
-        humanoid.JumpPower = jumpEnabled and 120 or 50
-    end
+    local character = player.Character
+    if not character then return end
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+    
+    humanoid.WalkSpeed = speedEnabled and 100 or 16
+    humanoid.JumpPower = jumpEnabled and 120 or 50
 end
 
--- Кнопка SpeedHack
+-- Цикл для постоянного поддержания настроек
+spawn(function()
+    while true do
+        applySettings()
+        wait(0.5)  -- обновляем каждые полсекунды
+    end
+end)
+
 createButton("Speedhack On/Off", 100, function()
     speedEnabled = not speedEnabled
-    applySettings()
 end)
 
--- Кнопка JumpHack
 createButton("JumpHack On/Off", 150, function()
     jumpEnabled = not jumpEnabled
-    applySettings()
 end)
 
--- Автоматическое применение при респавне
+-- Обновляем настройки при появлении персонажа
 player.CharacterAdded:Connect(function()
-    wait(1) -- подождать загрузку персонажа
+    wait(1)
     applySettings()
 end)
 
-print("Скрипт запущен и готов к работе")
+print("Скрипт запущен, GUI готов!")
