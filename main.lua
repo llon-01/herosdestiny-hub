@@ -2,20 +2,19 @@ local player = game.Players.LocalPlayer
 
 local speedEnabled = false
 local jumpEnabled = false
-local antiAfkEnabled = false
 
 local desiredSpeed = 250
 local desiredJump = 240
 
 -- GUI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "SimpleGui"
+gui.Name = "SpeedJumpGui"
 
 local function createButton(text, posY, callback)
     local btn = Instance.new("TextButton", gui)
     btn.Size = UDim2.new(0, 200, 0, 40)
     btn.Position = UDim2.new(0, 10, 0, posY)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     btn.TextColor3 = Color3.new(1, 1, 1)
     btn.Font = Enum.Font.SourceSansBold
     btn.TextSize = 20
@@ -24,38 +23,66 @@ local function createButton(text, posY, callback)
     return btn
 end
 
--- Кнопки
-createButton("Speedhack On/Off", 50, function()
+createButton("Toggle Speedhack", 50, function()
     speedEnabled = not speedEnabled
 end)
 
-createButton("JumpHack On/Off", 100, function()
+createButton("Toggle Jumphack", 100, function()
     jumpEnabled = not jumpEnabled
 end)
 
-createButton("Enable Anti-AFK", 150, function()
-    antiAfkEnabled = not antiAfkEnabled
-end)
+-- Функция плавного изменения скорости
+local function applySpeed(humanoid)
+    spawn(function()
+        while speedEnabled and humanoid and humanoid.Parent do
+            if humanoid.WalkSpeed < desiredSpeed then
+                humanoid.WalkSpeed = math.min(humanoid.WalkSpeed + 10, desiredSpeed)
+            elseif humanoid.WalkSpeed > desiredSpeed then
+                humanoid.WalkSpeed = math.max(humanoid.WalkSpeed - 10, desiredSpeed)
+            end
+            wait(0.05)
+        end
+        -- Если выключили, вернуть к нормальной скорости
+        if humanoid and humanoid.Parent then
+            humanoid.WalkSpeed = 16
+        end
+    end)
+end
 
--- Постоянная фиксация значений
+-- Постоянное обновление прыжка
 spawn(function()
     while true do
-        wait(0.05)
+        wait(0.1)
         local char = player.Character
-        local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = speedEnabled and desiredSpeed or 16
-            humanoid.JumpPower = jumpEnabled and desiredJump or 50
+        if char then
+            local humanoid = char:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                if jumpEnabled then
+                    humanoid.JumpPower = desiredJump
+                else
+                    humanoid.JumpPower = 50
+                end
+            end
         end
     end
 end)
 
--- Anti-AFK
-player.Idled:Connect(function()
-    if antiAfkEnabled then
-        local vu = game:GetService("VirtualUser")
-        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-        wait(1)
-        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+-- Обработка появления персонажа
+local function onCharacterAdded(char)
+    local humanoid = char:WaitForChild("Humanoid")
+    if speedEnabled then
+        applySpeed(humanoid)
+    else
+        humanoid.WalkSpeed = 16
     end
-end)
+    if jumpEnabled then
+        humanoid.JumpPower = desiredJump
+    else
+        humanoid.JumpPower = 50
+    end
+end
+
+player.CharacterAdded:Connect(onCharacterAdded)
+if player.Character then
+    onCharacterAdded(player.Character)
+end
