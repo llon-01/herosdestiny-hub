@@ -3,10 +3,9 @@ local player = game.Players.LocalPlayer
 local speedEnabled = false
 local jumpEnabled = false
 
-local desiredSpeed = 250
+local desiredSpeed = 400
 local desiredJump = 240
 
--- GUI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "SpeedJumpGui"
 
@@ -25,64 +24,48 @@ end
 
 createButton("Toggle Speedhack", 50, function()
     speedEnabled = not speedEnabled
-end)
-
-createButton("Toggle Jumphack", 100, function()
-    jumpEnabled = not jumpEnabled
-end)
-
--- Функция плавного изменения скорости
-local function applySpeed(humanoid)
-    spawn(function()
-        while speedEnabled and humanoid and humanoid.Parent do
-            if humanoid.WalkSpeed < desiredSpeed then
-                humanoid.WalkSpeed = math.min(humanoid.WalkSpeed + 10, desiredSpeed)
-            elseif humanoid.WalkSpeed > desiredSpeed then
-                humanoid.WalkSpeed = math.max(humanoid.WalkSpeed - 10, desiredSpeed)
-            end
-            wait(0.05)
-        end
-        -- Если выключили, вернуть к нормальной скорости
-        if humanoid and humanoid.Parent then
-            humanoid.WalkSpeed = 16
-        end
-    end)
-end
-
--- Постоянное обновление прыжка
-spawn(function()
-    while true do
-        wait(0.1)
+    if speedEnabled then
         local char = player.Character
         if char then
             local humanoid = char:FindFirstChildOfClass("Humanoid")
             if humanoid then
-                if jumpEnabled then
-                    humanoid.JumpPower = desiredJump
-                else
-                    humanoid.JumpPower = 50
-                end
+                spawn(function()
+                    while speedEnabled and humanoid and humanoid.Parent do
+                        humanoid.WalkSpeed = desiredSpeed
+                        wait(0.05)
+                    end
+                    if humanoid and humanoid.Parent then
+                        humanoid.WalkSpeed = 16
+                    end
+                end)
             end
         end
     end
 end)
 
--- Обработка появления персонажа
-local function onCharacterAdded(char)
+createButton("Toggle Jumphack", 100, function()
+    jumpEnabled = not jumpEnabled
+    local char = player.Character
+    if char then
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.JumpPower = jumpEnabled and desiredJump or 50
+        end
+    end
+end)
+
+player.CharacterAdded:Connect(function(char)
     local humanoid = char:WaitForChild("Humanoid")
     if speedEnabled then
-        applySpeed(humanoid)
-    else
-        humanoid.WalkSpeed = 16
+        spawn(function()
+            while speedEnabled and humanoid and humanoid.Parent do
+                humanoid.WalkSpeed = desiredSpeed
+                wait(0.05)
+            end
+            if humanoid and humanoid.Parent then
+                humanoid.WalkSpeed = 16
+            end
+        end)
     end
-    if jumpEnabled then
-        humanoid.JumpPower = desiredJump
-    else
-        humanoid.JumpPower = 50
-    end
-end
-
-player.CharacterAdded:Connect(onCharacterAdded)
-if player.Character then
-    onCharacterAdded(player.Character)
-end
+    humanoid.JumpPower = jumpEnabled and desiredJump or 50
+end)
