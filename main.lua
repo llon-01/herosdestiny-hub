@@ -24,15 +24,15 @@ end
 
 createButton("Toggle Speedhack", 50, function()
     speedEnabled = not speedEnabled
-    if speedEnabled then
-        local char = player.Character
-        if char then
-            local humanoid = char:FindFirstChildOfClass("Humanoid")
-            if humanoid then
+    local char = player.Character
+    if char then
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            if speedEnabled then
                 spawn(function()
                     while speedEnabled and humanoid and humanoid.Parent do
                         humanoid.WalkSpeed = desiredSpeed
-                        wait(0.05)
+                        wait(0.01)
                     end
                     if humanoid and humanoid.Parent then
                         humanoid.WalkSpeed = 16
@@ -46,26 +46,4 @@ end)
 createButton("Toggle Jumphack", 100, function()
     jumpEnabled = not jumpEnabled
     local char = player.Character
-    if char then
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.JumpPower = jumpEnabled and desiredJump or 50
-        end
-    end
-end)
-
-player.CharacterAdded:Connect(function(char)
-    local humanoid = char:WaitForChild("Humanoid")
-    if speedEnabled then
-        spawn(function()
-            while speedEnabled and humanoid and humanoid.Parent do
-                humanoid.WalkSpeed = desiredSpeed
-                wait(0.05)
-            end
-            if humanoid and humanoid.Parent then
-                humanoid.WalkSpeed = 16
-            end
-        end)
-    end
-    humanoid.JumpPower = jumpEnabled and desiredJump or 50
-end)
+    if cha
