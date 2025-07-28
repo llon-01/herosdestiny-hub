@@ -1,40 +1,38 @@
--- БЛОК МУЛЬТИМЕТРА УРОНА
-do
-    local rs = game:GetService("ReplicatedStorage")
-    local remote = rs:WaitForChild("RemoteEvent") -- проверь имя
-    local command = "UpgradeStrength"
-    local argument = 1
+-- Создаём GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.Name = "DamageMultiplierGUI"
 
-    local player = game.Players.LocalPlayer
-    local gui = Instance.new("ScreenGui")
-    gui.Name = "DamageMultiplierGui"
-    gui.ResetOnSpawn = false
-    gui.Parent = player:WaitForChild("PlayerGui")
+local Frame = Instance.new("Frame")
+Frame.Parent = ScreenGui
+Frame.AnchorPoint = Vector2.new(0, 0)
+Frame.Position = UDim2.new(0, 10, 0, 100)
+Frame.Size = UDim2.new(0, 150, 0, 180)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.BorderSizePixel = 0
+Frame.BackgroundTransparency = 0.3
+Frame.Visible = true
 
-    local frame = Instance.new("Frame", gui)
-    frame.Size = UDim2.new(0, 200, 0, 220)
-    frame.Position = UDim2.new(0.05, 0, 0.3, 0)
-    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+local function createButton(text, multiplier, yPos)
+    local btn = Instance.new("TextButton")
+    btn.Parent = Frame
+    btn.Size = UDim2.new(0, 130, 0, 35)
+    btn.Position = UDim2.new(0, 10, 0, yPos)
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Text = text
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 18
+    btn.AutoButtonColor = true
 
-    local function makeBtn(label, mult, ypos)
-        local btn = Instance.new("TextButton", frame)
-        btn.Size = UDim2.new(1, -20, 0, 40)
-        btn.Position = UDim2.new(0, 10, 0, ypos)
-        btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-        btn.TextColor3 = Color3.new(1,1,1)
-        btn.Text = label
-
-        btn.MouseButton1Click:Connect(function()
-            for i = 1, mult do
-                remote:FireServer(command, argument)
-                task.wait(0.05)
-            end
-        end)
-    end
-
-    makeBtn("Урон ×10", 10, 10)
-    makeBtn("Урон ×20", 20, 60)
-    makeBtn("Урон ×50", 50, 110)
-    makeBtn("Урон ×100",100,160)
+    btn.MouseButton1Click:Connect(function()
+        local remote = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent")
+        for i = 1, multiplier do
+            remote:FireServer("UpgradeStrength", 1)  -- заменяй "UpgradeStrength" на нужную команду
+            wait(0.05)
+        end
+        print("Отправлено прокачек урона: " .. multiplier)
+    end)
 end
--- КОНЕЦ БЛОКА
+
+cre
