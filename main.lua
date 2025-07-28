@@ -1,31 +1,32 @@
--- Создание GUI
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+-- GUI настройки
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Position = UDim2.new(0.05, 0, 0.4, 0)
-Frame.Size = UDim2.new(0, 180, 0, 200)
-Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.AnchorPoint = Vector2.new(0, 0)
+Frame.Position = UDim2.new(0.05, 0, 0.3, 0)
+Frame.Size = UDim2.new(0, 0, 200, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 
-local function createButton(text, multiplier, positionY)
-	local button = Instance.new("TextButton", Frame)
-	button.Size = UDim2.new(0, 160, 0, 35)
-	button.Position = UDim2.new(0, 10, 0, positionY)
-	button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-	button.TextColor3 = Color3.fromRGB(255, 255, 255)
-	button.Text = text
+local function makeBtn(text, mult, y)
+    local btn = Instance.new("TextButton", Frame)
+    btn.Size = UDim2.new(1, -20, 0, 40)
+    btn.Position = UDim2.new(0, 10, 0, y)
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Text = text
 
-	button.MouseButton1Click:Connect(function()
-		for i = 1, multiplier do
-			local args = {
-				[1] = "UpgradeStrength", -- <- заменить на нужный RemoteEvent, если отличается
-				[2] = 1
-			}
-			game:GetService("ReplicatedStorage").RemoteEvent:FireServer(unpack(args))
-			wait(0.05) -- задержка между вызовами, чтобы не вылететь
-		end
-	end)
+    btn.MouseButton1Click:Connect(function()
+        -- Подставь название нужного события для прокачки урона
+        local remote = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent")
+        for i = 1, mult do
+            remote:FireServer("UpgradeStrength", 1)
+            task.wait(0.05)
+        end
+    end)
 end
 
-createButton("Урон x10", 10, 10)
-createButton("Урон x20", 20, 50)
-createButton("Урон x50", 50, 90)
-createButton("Урон x100", 100, 130)
+makeBtn("Урон ×10", 10, 10)
+makeBtn("Урон ×20", 20, 60)
+makeBtn("Урон ×50", 50, 110)
+makeBtn("Урон ×100", 100, 160)
