@@ -1,49 +1,31 @@
--- Настройка
-local autofarmEnabled = false -- Включить/выключить автофарм
-local targetEnemyName = "TIGER THREAT" -- Имя врага для фарма
+-- Создание GUI
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Position = UDim2.new(0.05, 0, 0.4, 0)
+Frame.Size = UDim2.new(0, 180, 0, 200)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 
--- Функция автофарма
-local function autoFarm()
-    while autofarmEnabled do
-        local player = game.Players.LocalPlayer
-        local character = player.Character
-        if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
-            -- Ищем всех врагов в workspace
-            for _, enemy in pairs(workspace:GetChildren()) do
-                if enemy:IsA("Model") and enemy.Name == targetEnemyName then
-                    local enemyHumanoid = enemy:FindFirstChildOfClass("Humanoid")
-                    local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
-                    if enemyHumanoid and enemyHRP and enemyHumanoid.Health > 0 then
-                        -- Подойти к врагу
-                        repeat
-                            wait(0.1)
-                            character.HumanoidRootPart.CFrame = enemyHRP.CFrame * CFrame.new(0, 0, 2)
-                        until enemyHumanoid.Health <= 0 or not autofarmEnabled or character.Humanoid.Health <= 0
-                    end
-                end
-            end
-        end
-        wait(1)
-    end
+local function createButton(text, multiplier, positionY)
+	local button = Instance.new("TextButton", Frame)
+	button.Size = UDim2.new(0, 160, 0, 35)
+	button.Position = UDim2.new(0, 10, 0, positionY)
+	button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	button.TextColor3 = Color3.fromRGB(255, 255, 255)
+	button.Text = text
+
+	button.MouseButton1Click:Connect(function()
+		for i = 1, multiplier do
+			local args = {
+				[1] = "UpgradeStrength", -- <- заменить на нужный RemoteEvent, если отличается
+				[2] = 1
+			}
+			game:GetService("ReplicatedStorage").RemoteEvent:FireServer(unpack(args))
+			wait(0.05) -- задержка между вызовами, чтобы не вылететь
+		end
+	end)
 end
 
--- Включение/выключение автофарма клавишей F
-local UserInputService = game:GetService("UserInputService")
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.F then
-        autofarmEnabled = not autofarmEnabled
-        if autofarmEnabled then
-            print("AutoFarm включен!")
-            coroutine.wrap(autoFarm)()
-        else
-            print("AutoFarm выключен!")
-        end
-    end
-end)
-
--- Ноклип для безопасного прохождения через объекты во время фарма
-game:GetService("RunService").Stepped:Connect(function()
-    if autofarmEnabled and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-        game.Players.LocalPlayer.Characte
+createButton("Урон x10", 10, 10)
+createButton("Урон x20", 20, 50)
+createButton("Урон x50", 50, 90)
+createButton("Урон x100", 100, 130)
