@@ -1,73 +1,51 @@
-local player = game.Players.LocalPlayer
+-- Настройка
+local autofarmEnabled = false -- Включить/выключить автофарм
+local targetEnemyName = "Psykos" -- Имя врага для фарма
 
-local speedEnabled = false
-local jumpEnabled = false
-
-local desiredSpeed = 350
-local desiredJump = 240
-
-local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "SpeedJumpGui"
-
-local function createButton(text, posY, callback)
-    local btn = Instance.new("TextButton", gui)
-    btn.Size = UDim2.new(0, 200, 0, 40)
-    btn.Position = UDim2.new(0, 10, 0, posY)
-    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    btn.TextColor3 = Color3.new(1, 1, 1)
-    btn.Font = Enum.Font.SourceSansBold
-    btn.TextSize = 20
-    btn.Text = text
-    btn.MouseButton1Click:Connect(callback)
-    return btn
+-- Функция автофарма
+local function autoFarm()
+    while autofarmEnabled do
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
+            local enemiesFolder = workspace:WaitForChild("Spawns"):WaitForChild(targetEnemyName .. "s") -- Предполагается, что враги лежат в Spawns -> Psykos
+            for _, enemy in pairs(enemiesFolder:GetChildren()) do
+                if enemy:IsA("Model") and enemy.Name == targetEnemyName then
+                    local enemyHumanoid = enemy:FindFirstChildOfClass("Humanoid")
+                    local enemyHRP = enemy:FindFirstChild("HumanoidRootPart")
+                    if enemyHumanoid and enemyHRP and enemyHumanoid.Health > 0 then
+                        -- Подойти к врагу
+                        repeat
+                            wait(0.1)
+                            character.HumanoidRootPart.CFrame = enemyHRP.CFrame * CFrame.new(0, 0, 2) -- стоим рядом с врагом
+                        until enemyHumanoid.Health <= 0 or not autofarmEnabled or character.Humanoid.Health <= 0
+                    end
+                end
+            end
+        end
+        wait(1)
+    end
 end
 
-createButton("Toggle Speedhack", 50, function()
-    speedEnabled = not speedEnabled
-    local char = player.Character
-    if char then
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            if speedEnabled then
-                spawn(function()
-                    while speedEnabled and humanoid and humanoid.Parent do
-                        humanoid.WalkSpeed = desiredSpeed
-                        wait(0.01)
-                    end
-                    if humanoid and humanoid.Parent then
-                        humanoid.WalkSpeed = 16
-                    end
-                end)
-            else
-                humanoid.WalkSpeed = 16
-            end
+-- Включение/выключение автофарма (например, по нажатию кнопки)
+local UserInputService = game:GetService("UserInputService")
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.F then -- Нажми F чтобы включить/выключить
+        autofarmEnabled = not autofarmEnabled
+        if autofarmEnabled then
+            print("AutoFarm включен!")
+            coroutine.wrap(autoFarm)()
+        else
+            print("AutoFarm выключен!")
         end
     end
 end)
 
-createButton("Toggle Jumphack", 100, function()
-    jumpEnabled = not jumpEnabled
-    local char = player.Character
-    if char then
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.JumpPower = jumpEnabled and desiredJump or 50
-        end
+-- Ноклип для безопасного прохождения через объекты во время фарма
+game:GetService("RunService").Stepped:Connect(function()
+    if autofarmEnabled and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+        game.Players.LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
     end
-end)
-
-player.CharacterAdded:Connect(function(char)
-    local humanoid = char:WaitForChild("Humanoid")
-    if speedEnabled then
-        spawn(function()
-            while speedEnabled and humanoid and humanoid.Parent do
-                humanoid.WalkSpeed = desiredSpeed
-                wait(0.01)
-            end
-            if humanoid and humanoid.Parent then
-                humanoid.WalkSpeed = 16
-            end
-        end)
-    end
-    humanoid.JumpPower = jumpEnabled and desiredJump or 50
 end)
