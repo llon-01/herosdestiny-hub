@@ -1,38 +1,40 @@
--- Создаём GUI
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local remote = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent")
+
+-- Создаем GUI
+local ScreenGui = Instance.new("ScreenGui", playerGui)
 ScreenGui.Name = "DamageMultiplierGUI"
 
-local Frame = Instance.new("Frame")
-Frame.Parent = ScreenGui
-Frame.AnchorPoint = Vector2.new(0, 0)
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 150, 0, 200)
 Frame.Position = UDim2.new(0, 10, 0, 100)
-Frame.Size = UDim2.new(0, 150, 0, 180)
-Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Frame.BorderSizePixel = 0
+Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 Frame.BackgroundTransparency = 0.3
-Frame.Visible = true
+Frame.BorderSizePixel = 0
 
-local function createButton(text, multiplier, yPos)
-    local btn = Instance.new("TextButton")
-    btn.Parent = Frame
+local function createButton(text, count, yPos)
+    local btn = Instance.new("TextButton", Frame)
     btn.Size = UDim2.new(0, 130, 0, 35)
     btn.Position = UDim2.new(0, 10, 0, yPos)
-    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    btn.TextColor3 = Color3.new(1, 1, 1)
     btn.Text = text
     btn.Font = Enum.Font.SourceSansBold
     btn.TextSize = 18
-    btn.AutoButtonColor = true
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    btn.TextColor3 = Color3.new(1, 1, 1)
 
     btn.MouseButton1Click:Connect(function()
-        local remote = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent")
-        for i = 1, multiplier do
-            remote:FireServer("UpgradeStrength", 1)  -- заменяй "UpgradeStrength" на нужную команду
+        for i = 1, count do
+            remote:FireServer("UpgradeStrength", 1)
             wait(0.05)
         end
-        print("Отправлено прокачек урона: " .. multiplier)
+        print("Прокачка урона x"..count.." отправлена")
     end)
 end
 
-cre
+createButton("Урон x10", 10, 10)
+createButton("Урон x20", 20, 55)
+createButton("Урон x50", 50, 100)
+createButton("Урон x100", 100, 145)
